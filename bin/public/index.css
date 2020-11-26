@@ -1,0 +1,10 @@
+h1{
+    color: darkolivegreen;
+    background-color: orchid;
+}
+
+body{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}

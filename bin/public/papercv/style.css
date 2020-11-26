@@ -1,0 +1,209 @@
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #5D5C61;
+        font: 12pt "Tahoma";
+    }
+    * {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+    }
+    .page {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 5mm;
+        margin: 10mm auto;
+        border: 1px #D3D3D3 solid;
+        border-radius: 5px;
+        background: white;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+    }
+    
+    @page {
+        size: A4;
+        margin: 0;
+    }
+    @media print {
+        html, body {
+            width: 210mm;
+            height: 297mm;        
+        }
+        body, .page {
+            margin: 0;
+            border: initial;
+            border-radius: initial;
+            width: 210mm;
+            box-shadow: initial;
+            background: initial;
+            /*page-break-after: always;*/
+        }
+    }
+
+div.pageroot {
+    margin-right: auto;
+    margin-left: auto;
+    display: flex;
+}
+
+div.pageroot > * {
+  box-sizing: border-box;
+}
+
+div.sidebar {
+    background: #FBEAEB;
+    color: #2F3C7E;
+    flex: 0 0 30%;
+    margin: 0px 10px 0px 10px;
+}
+
+div.sidebar-content, div.main-content {
+    margin: 20px 5px;
+}
+
+div.sidebar-content > *, div.main-content > * {
+    margin: 10px 10px;
+}
+
+img.profile-picture {
+    width:80%;
+    display: block;
+    margin: 20px auto 0px;
+    border-radius: 100%
+    
+}
+
+p.presentation-name {
+    font-size: 18pt;
+}
+
+ul.presentation-subcontent {
+    padding-left: 0px;
+    list-style: none;
+    font-size:10pt;
+}
+
+ul.presentation-subcontent > li{
+    margin: 4px 0px;
+}
+
+ul.presentation-subcontent > li > i{
+    width:15px;
+    text-align: center;
+}
+
+p.sidebar-title {
+    font-size: 18pt;
+    font-weight: bold; 
+    color:#495698;
+}
+
+ul.sidebar-chip-list {
+    list-style: none;
+    padding-left: 0px;
+    text-align: justify;
+}
+
+li.sidebar-chip {
+    display:inline-block;
+    background: #95A2E4;
+    font-size: 10pt;
+    padding: 5px 10px;
+    border-radius: 20px;
+    margin: 2px 0px;
+}
+
+p.sidebar-text {
+    text-align: justify;
+    font-size:10pt;
+    font-family: "Palatino Linotype", "Book Antiqua", serif;
+}
+
+p.sidebar-text::first-line {
+    text-indent: 20px;
+}
+
+div.main {
+    background: #2F3C7E;
+    color: #FBEAEB;
+    flex:1;
+    margin: 0px 10px 0px 10px;
+}
+
+
+div.main-title {
+    font-size: 18pt;
+    font-family: "Palatino Linotype", "Book Antiqua", serif;
+    
+}
+
+ul.main-list {
+    padding-left: 0px;
+    list-style: none;
+    font-size:10pt;
+    color: #f4f0f1;
+}
+
+li.main-list-item {
+    margin: 10px 0px;
+    display: flex;
+    flex-direction: row;
+}
+
+div.main-list-date {
+    padding: 0px 10px 0px 0px;
+    margin: 0px;
+    flex: 0 0 25%;
+    text-align: right;
+}
+
+div.main-list-date.bold {
+    font-weight: bold;
+}
+
+div.main-list-detail {
+    flex: 1;
+}
+
+
+div.main-list-detail-title {
+    font-weight: bold;
+}
+
+div.main-list-detail-title.light {
+    font-weight: normal;
+}
+
+div.main-list-detail-title.light:not(:last-child) {
+    margin-bottom: 2px;
+}
+
+div.main-list-detail-subtitle {
+    font-weight: lighter;
+    font-style: italic;
+    font-size: 8pt;
+}
+
+ul.main-list-detail-list {
+    margin-top:4px;
+    padding-left: 0px;
+    list-style: none;
+    font-size: 8pt;
+    color: #fbdadc;
+    text-align: justify;
+}
+
+ul.main-list-detail-list.bullets {
+    
+    padding-left: 40px;
+    list-style: circle;
+}
+
+li.main-list-detail-list-item {
+    margin-bottom: 5px;
+}
+
+
+

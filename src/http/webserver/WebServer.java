@@ -1,13 +1,13 @@
 ///A Simple Web Server (WebServer.java)
 
-package http.server;
-
+package http.webserver;
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+
 
 /**
  * Example program from Chapter 1 Programming Spiders, Bots and Aggregators in
@@ -30,7 +30,7 @@ public class WebServer {
   protected void start() {
     ServerSocket s;
 
-    final String publicPath = "../public";
+    final String publicPath = "public";
 
     System.out.println("Webserver starting up on port 80");
     System.out.println("(press ctrl-c to exit)");
@@ -41,6 +41,9 @@ public class WebServer {
       System.out.println("Error: " + e);
       return;
     }
+
+
+    RequestResolver resolver = new RequestResolver();
 
     System.out.println("Waiting for connection");
     for (;;) {
@@ -62,21 +65,34 @@ public class WebServer {
         //GET /index.html HTTP/1.0
         //GET /index.js HTTP/1.0
 
-        ArrayList<String> lineList = new ArrayList<String>();
+        ArrayList<String> headersList = new ArrayList<String>();
+        String line;
+        boolean headersParsed  =false;
         while (in.ready()) {
-          String line = in.readLine();
+          line = in.readLine();
           if(line.length() == 0) break;
-          lineList.add(line);
+          headersList.add(line);
+          //System.out.println(line);
           
         }
 
-        if(lineList.size() == 0) {
+        String content = "";
+
+        while (in.ready()) {
+          line = in.readLine();
+          if(line.length() == 0) break;
+          content += line.trim();
+          //System.out.println(line);
+          
+        }
+
+        if(headersList.size() == 0) {
           remote.close();
           continue;
         }
 
         Request r;
-        r = new Request(lineList);
+        r = new Request(headersList, content);
         System.out.println(r);
 
       
@@ -94,18 +110,8 @@ public class WebServer {
           out.flush();
           remote.close();
         }else{
-
-          switch(r.getType()) {
-            case Request.Type.GET:
-              RequestResolver.resolveGet(r, remote, publicPath);
-              break;
-            default:
-              break;
-          }
-          
+          resolver.resolveRequest(r, remote, publicPath);
         }
-
-        
       } catch (Exception e) {
         System.out.println("Error: " + e);
         e.printStackTrace();

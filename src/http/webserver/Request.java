@@ -1,6 +1,7 @@
-package http.server;
+package http.webserver;
 
 import java.util.*;
+import org.json.*;
 
 public class Request {
 
@@ -17,12 +18,16 @@ public class Request {
     String path;
     String protocol;
     HashMap<String, String> headers;
+    HashMap<String, String> formParameters;
+    JSONObject jsonParameters;
+    String content;
 
     public Request() {
-
+        
     }
 
-    public Request(List<String> request) {
+    public Request(List<String> request, String content) {
+        this.content = content;
         headers = new HashMap<String, String>();
         invalid = false;
         
@@ -63,8 +68,31 @@ public class Request {
             String[] header = request.get(i).trim().split(":", 2);
 
             if(header.length > 1){
-
                 headers.put(header[0].trim(), header[1].trim());
+            }
+        }
+
+        if(requestType == Type.POST || requestType == Type.PUT){
+            if(headers.get("Content-Type").equals("application/x-www-form-urlencoded")){
+
+                formParameters = new HashMap<>();
+
+                String[] params = content.split("&");
+
+                for(int i = 0; i < params.length; i++){
+
+                    String[] param = params[i].split("=");
+
+                    formParameters.put(param[0], param[1]);
+
+                }
+
+            }
+
+            if(headers.get("Content-Type").equals("application/json")){
+
+                jsonParameters = new JSONObject(content.substring(content.indexOf("{", 0)).substring(0, content.lastIndexOf("}")));
+
             }
         }
 
@@ -78,7 +106,12 @@ public class Request {
         return requestType;
     }
 
+    public String getPath(){
+        return path;
+    }
+
     public String toString() {
+        String type = headers.get("Content-Type");
         String ret ="";
         ret += requestType + " " + path + " " + protocol + "\r\n";
         Iterator it = headers.entrySet().iterator();
@@ -86,6 +119,23 @@ public class Request {
             Map.Entry pair = (Map.Entry)it.next();
             ret += (pair.getKey() + ": " + pair.getValue()) + "\r\n";
             it.remove(); // avoids a ConcurrentModificationException
+        }
+        if(requestType == Type.POST || requestType == Type.PUT){
+            if(type.equals("application/x-www-form-urlencoded")){
+                
+                it = formParameters.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry)it.next();
+                    ret += (pair.getKey() + ": " + pair.getValue()) + "\r\n";
+                    it.remove(); // avoids a ConcurrentModificationException
+                }
+
+            }
+
+            else if(type.equals("application/json")){
+                ret += jsonParameters.toString();
+
+            }
         }
 
         return ret;
