@@ -29,7 +29,7 @@ public class ReceptionThread extends Thread {
                 byte[] buf = new byte[1000];
                 DatagramPacket recv = new DatagramPacket(buf, buf.length); 
                 serverSocket.receive(recv);
-                System.out.println("Message recçu : " + new String(recv.getData(), StandardCharsets.UTF_8));
+                System.out.println("Message diffuse : " + new String(recv.getData(), StandardCharsets.UTF_8));
                 
             } 
         }catch (Exception e) {
