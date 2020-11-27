@@ -6,30 +6,33 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 /**
- * The type Reception thread.
+ * The Recetion thread listening for incoming messages.
  */
 public class ReceptionThread extends Thread {
 
-    private Socket serverSocket;
+    private Socket socket;
     private Main main;
     private BufferedReader socIn;
 
     /**
      * Instantiates a new Reception thread.
      *
-     * @param serverSocket the server socket
+     * @param socket the server socket
      * @param main         the main
      */
-    public ReceptionThread(Socket serverSocket, Main main) {
+    public ReceptionThread(Socket socket, Main main) {
         this.main = main;
-        this.serverSocket = serverSocket;
+        this.socket = socket;
     }
 
+    /**
+     * Method that will be run when Thread.start() is called.
+     */
     public void run() {
         socIn = null;
         try {
             socIn = new BufferedReader(
-                new InputStreamReader(serverSocket.getInputStream()));
+                new InputStreamReader(socket.getInputStream()));
                 
             while(true) {
                 String line = socIn.readLine();

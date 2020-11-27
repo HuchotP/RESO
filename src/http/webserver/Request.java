@@ -3,6 +3,10 @@ package http.webserver;
 import java.util.*;
 import org.json.*;
 
+/**
+ * Handles a raw request body and parses it in a simpler way.
+ * 
+ */
 public class Request {
 
     public enum Type{
@@ -22,10 +26,18 @@ public class Request {
     JSONObject jsonParameters;
     String content;
 
+    /**
+     * Default constructor for Request
+     */
     public Request() {
         
     }
 
+    /**
+     * Constructor for Request
+     * @param request : a list containing all headers
+     * @param content : body of the request if it has one 
+     */
     public Request(List<String> request, String content) {
         this.content = content;
         headers = new HashMap<String, String>();
@@ -91,25 +103,41 @@ public class Request {
 
             if(headers.get("Content-Type").equals("application/json")){
 
-                jsonParameters = new JSONObject(content.substring(content.indexOf("{", 0)).substring(0, content.lastIndexOf("}")));
+                jsonParameters = new JSONObject(content.substring(content.indexOf("{", 0)).substring(0, content.lastIndexOf("}") + 1));
 
             }
         }
 
     }
 
+    /**
+     * Returns true if the request is invalid (i.e., no valid type or seeks a ressource in parent folder "..")
+     * @return boolean
+     */
     public boolean isInvalid() {
         return invalid;
     }
 
+    /**
+     * Returns the type of the request (i.e., GET, POST...)
+     * @return Request.Type
+     */
     public Type getType() {
         return requestType;
     }
 
+    /**
+     * Returns the path asked by the request
+     * @return String
+     */
     public String getPath(){
         return path;
     }
 
+    /**
+     * Returns the request in String format for displaying and debugging
+     * @return String
+     */
     public String toString() {
         String type = headers.get("Content-Type");
         String ret ="";

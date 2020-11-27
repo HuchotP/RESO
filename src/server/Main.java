@@ -15,12 +15,12 @@ import server.SocketClient;
 import server.Diffusion;
 
 /**
- * The type Main.
+ * Main class.
  */
 public class Main  {
 
     /**
-     * main method
+     * main methd
      *
      * @param args the args
      */

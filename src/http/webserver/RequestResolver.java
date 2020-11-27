@@ -11,11 +11,16 @@ import java.nio.file.Path;
 import java.nio.file.Files;
 import java.util.HashMap;
 
-
+/**
+ * Handles the work of answering the request
+ */
 public class RequestResolver{
 
     HashMap<String, Route> routeMap;
 
+    /**
+     * Default constructor for RequestResolver
+     */
     public RequestResolver(){
 
         routeMap = new HashMap<String, Route>();
@@ -23,33 +28,121 @@ public class RequestResolver{
     }
 
 
+    /**
+     * Adds a POST route on @param path for customized behaviour
+     * @param path : a route starting with /
+     * @param route : an object implementing the Route interface
+     */
     public void ajouterRoute(String path, Route route ){
         routeMap.put(path, route);
     }
 
+    /**
+     * Main method for answering a request. It does the job of routing the request to the correct resolver.a
+     * @param r : the parsed request
+     * @param s : The socket to which we should send the response
+     * @param publicPath : the path of the public files folder 
+     */
     public void resolveRequest(Request r, Socket s, String publicPath){
         if(routeMap.containsKey(r.getPath())){
             Route route = routeMap.get(r.getPath());
             route.execute(r, s);
         }else{
             if(r.getType() == Request.Type.GET){
-                resolveGet(r, s, publicPath);
+                resolveGet(r, s, publicPath, false);
             }else if(r.getType() == Request.Type.PUT) {
                 resolvePut(r, s, publicPath);
-            } else{
-                //renvoyer 404
+            } else if (r.getType() == Request.Type.HEAD){
+                resolveGet(r, s, publicPath, true);
+            }else if (r.getType() == Request.Type.DELETE){
+                resolveDelete(r, s, publicPath);
+            } else if(r.getType() == Request.Type.POST) {
+                resolvePost(r, s, publicPath);
             }
         }
     }
 
+    /**
+     * Resolves a POST request by looking if it's registered. If not a 404 is sent.
+     * @param r : the parsed request
+     * @param s : The socket to which we should send the response
+     * @param publicPath : the path of the public files folder 
+     */
+    public void resolvePost(Request r, Socket s, String publicPath){
+        
+        if(routeMap.containsKey(r.getPath())){
+            Route route = routeMap.get(r.getPath());
+            route.execute(r, s);
+        }else{
+            try {
+                PrintWriter out = new PrintWriter(s.getOutputStream());
+                out.println("HTTP/1.1 404 Not found");
+                out.println("");
+                out.println("<h1>Route not found on server</h1>");
+                out.println("");
+                out.flush();
+                s.close();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Resolves a DELETE request by looking for the specified file in the public folder and deleting it if it exists.
+     * @param r : the parsed request
+     * @param s : The socket to which we should send the response
+     * @param publicPath : the path of the public files folder 
+     */
+    public static void resolveDelete(Request r, Socket s, String publicPath) {
+        try {
+            PrintWriter out = new PrintWriter(s.getOutputStream());
+            Path filePath = java.nio.file.Paths.get(publicPath, r.path);
+            File file = filePath.toFile();
+            System.out.println(filePath.toAbsolutePath().toString() + " " + filePath.toAbsolutePath().toString().lastIndexOf("\\"));
+            File directory = new File(filePath.toAbsolutePath().toString().substring(0, filePath.toAbsolutePath().toString().lastIndexOf("\\")));
+            if(!file.exists() || !directory.exists()) { //if file or directory does not exist c tout benef
+                out.println("HTTP/1.1 201 No Content");
+                out.println("");
+                out.println("<h1>File does not exist</h1>");
+            }else{
+                if(file.delete()){
+                    out.println("HTTP/1.1 204 No Content"); // c'est bon ya pu rien
+                    out.println("");
+                    out.println("<h1>File deleted</h1>");
+                }
+            }
+            
+            // this blank line signals the end of the headers
+            out.println("");
+            out.flush();
+            s.close();
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Resolves a PUT request by looking for the specified file in the public folder overwriting it if it exists
+     * or creating folders if needed.
+     * @param r : the parsed request
+     * @param s : The socket to which we should send the response
+     * @param publicPath : the path of the public files folder 
+     */
     public static void resolvePut(Request r, Socket s, String publicPath) {
         try {
             PrintWriter out = new PrintWriter(s.getOutputStream());
             boolean rewrite = false;
             Path filePath = java.nio.file.Paths.get(publicPath, r.path);
             File file = filePath.toFile();
-            if(!file.exists()) {
+            System.out.println(filePath.toAbsolutePath().toString() + " " + filePath.toAbsolutePath().toString().lastIndexOf("\\"));
+            File directory = new File(filePath.toAbsolutePath().toString().substring(0, filePath.toAbsolutePath().toString().lastIndexOf("\\")));
+            if(file.exists()) {
                 rewrite = true;
+            }
+            if(!directory.exists()) {
+                directory.mkdirs();
             }
             FileWriter fw = new FileWriter(file, false); //overwriting rather than appending (PUT definition)
             fw.write(r.content);
@@ -60,7 +153,7 @@ public class RequestResolver{
             } else {
                 out.println("HTTP/1.0 201 Created");  
             }
-            out.println("Content-Location: " + filePath.toString());
+            out.println("Content-Location: " + r.path);
             // this blank line signals the end of the headers
             out.println("");
             out.flush();
@@ -72,7 +165,15 @@ public class RequestResolver{
         }
     }
 
-    public static void resolveGet(Request request, Socket socket, String publicPath) {
+    /**
+     * Resolves a GET request by looking for the specified file in the public folder.
+     * If the file is found it is sent. If the file is not found it tries to find the 
+     * index.html in the specified folder. 
+     * @param r : the parsed request
+     * @param s : The socket to which we should send the response
+     * @param publicPath : the path of the public files folder 
+     */
+    public static void resolveGet(Request request, Socket socket, String publicPath, boolean isHead) {
         
         try{
             
@@ -183,11 +284,14 @@ public class RequestResolver{
 
                 out.println("HTTP/1.0 200 OK");
                 out.println(contentType);
+                out.println("Content-Length :" + file.length());
                 out.println("Server: Bot");
                 // this blank line signals the end of the headers
                 out.println("");
                 out.flush();
-                Files.copy(filePath, socket.getOutputStream());
+                if(!isHead) {
+                    Files.copy(filePath, socket.getOutputStream());
+                }
                 socket.getOutputStream().flush();
                 reader.close();
                 // Send the HTML page

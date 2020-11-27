@@ -1,12 +1,14 @@
 ///A Simple Web Server (WebServer.java)
 
 package http.webserver;
+import java.io.DataInputStream;
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 
 /**
@@ -27,6 +29,9 @@ public class WebServer {
 
   public WebServer(){}
 
+  /**
+   * Starts listening on port 3000 for incoming HTTP requests
+   */
   protected void start() {
     ServerSocket s;
 
@@ -45,6 +50,8 @@ public class WebServer {
 
     RequestResolver resolver = new RequestResolver();
 
+    resolver.ajouterRoute("/ajouter", new Add());
+
     System.out.println("Waiting for connection");
     for (;;) {
       try {
@@ -52,7 +59,7 @@ public class WebServer {
         Socket remote = s.accept();
         // remote is now the connected socket
         System.out.println("Connection, sending data.");
-        BufferedReader in = new BufferedReader(new InputStreamReader(
+        BufferedReader in = new BufferedReader(new CustomInputStreamReader(
             remote.getInputStream()));
         PrintWriter out = new PrintWriter(remote.getOutputStream());
 
@@ -65,6 +72,13 @@ public class WebServer {
         //GET /index.html HTTP/1.0
         //GET /index.js HTTP/1.0
 
+        /*String req = "";
+        //in.useDelimiter("$|\\z");
+        byte[] messageByte = new byte[1000];
+        while(in.ready()){
+          req += in.readLine();
+        }*/
+
         ArrayList<String> headersList = new ArrayList<String>();
         String line;
         boolean headersParsed  =false;
@@ -72,28 +86,30 @@ public class WebServer {
           line = in.readLine();
           if(line.length() == 0) break;
           headersList.add(line);
-          //System.out.println(line);
-          
+
         }
-
+        System.out.println("headers parsed");
         String content = "";
+        boolean status = in.ready();
+        while (status) {
 
-        while (in.ready()) {
+          /*if(lastLine == null){ //On se debarrasse de la première ligne
+              in.readLine();
+              lastLine = "";
+              continue;
+          }*/
           line = in.readLine();
-          if(line.length() == 0) break;
-          content += line.trim();
-          //System.out.println(line);
-          
+          if(line.length() == 0) break;         
+          content += line; //On ne rajoute pas la dernière ligne
+          status = in.ready();
         }
 
         if(headersList.size() == 0) {
           remote.close();
           continue;
         }
-
         Request r;
         r = new Request(headersList, content);
-        System.out.println(r);
 
       
 

@@ -13,7 +13,7 @@ import java.net.*;
 import server.Diffusion;
 
 /**
- * The type Socket client.
+ * The Class Socket client.
  */
 public class SocketClient
 	extends Thread {
@@ -23,16 +23,18 @@ public class SocketClient
 	/**
 	 * Instantiates a new Socket client.
 	 *
-	 * @param s the s
+	 * @param s the socket of the client
 	 */
 	SocketClient(Socket s) {
 		this.clientSocket = s;
 	}
 
  	/**
-  	* receives a request from client then sends an echo to the client
+	* Initiates client connection by sending it the history,
+	* then handling message broadcasting on receive.
+	* Also handles deconnection
   	* @param clientSocket the client socket
-  	**/
+  	*/
 	public void run() {
     	  try {
     		BufferedReader socIn = null;
@@ -66,7 +68,7 @@ public class SocketClient
 	}
 
 	/**
-	 * Envoyer message.
+	 * Sends a message.
 	 *
 	 * @param message the message
 	 */
@@ -76,11 +78,11 @@ public class SocketClient
             socOut.println(message);
 
         }catch (Exception e) {
-        	System.err.println("Error in EchoServer:" + e); 
+        	System.err.println("Error in SocketClient:" + e); 
         }
     }
 
-    //public void setBroadcast()
+    
   
   }
 

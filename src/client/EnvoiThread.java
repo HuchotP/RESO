@@ -29,8 +29,15 @@ public class EnvoiThread extends Thread{
 
     }
 
-    public void run(){
-        /* This is useless when running with a GUI because you don't need a thread to listen to user input
+    /**
+     * @deprecated
+     * Method that will be run when Thread.start() is called.
+     * This is useless when running with a GUI because the thread listening for user input
+     * is the GUI itself.
+     */
+    @Deprecated
+    /*public void run(){
+        
         PrintStream socOut = null;
         BufferedReader stdIn = null;
         try{
@@ -49,8 +56,8 @@ public class EnvoiThread extends Thread{
             e.printStackTrace();
 
 
-        }*/
-    }
+        }
+    }*/
 
     /**
      * Envoyer message.

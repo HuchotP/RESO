@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.util.Scanner; // Import the Scanner class to read text files
 
 /**
- * The type Diffusion.
+ * The Diffusion class. It is used to synchronize messages among all clients
  */
 public class Diffusion{
 
@@ -19,6 +19,9 @@ public class Diffusion{
 
     private static Diffusion instance = null;
 
+    /**
+     * Private 
+     */
     private Diffusion(List<SocketClient> socketsClient){
         this.socketsClient = socketsClient;
         historique = new LinkedList<String>();
@@ -59,7 +62,7 @@ public class Diffusion{
     }
 
     /**
-     * Recevoir message.
+     * Receive message.
      *
      * @param origin  the origin
      * @param message the message
@@ -82,7 +85,7 @@ public class Diffusion{
     }
 
     /**
-     * Envoyer historique.
+     * Send message history.
      *
      * @param client the client
      */
@@ -95,7 +98,7 @@ public class Diffusion{
     }
 
     /**
-     * Deconnexion socket.
+     * Handle client socket disconnections.
      *
      * @param client the client
      */
